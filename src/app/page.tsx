@@ -1,65 +1,110 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Record } from '@/types';
+import { getRecords, saveRecords, saveStore } from '@/lib/storage';
+import { generateDummyData } from '@/lib/dummyData';
+import { Header } from '@/components/layout/Header';
+import { SummaryCards } from '@/components/dashboard/SummaryCards';
+import { InsightTip } from '@/components/dashboard/InsightTip';
+import { MonthCalendar } from '@/components/calendar/MonthCalendar';
+import { EntryFab } from '@/components/entry/EntryFab';
+import { EntryModal } from '@/components/entry/EntryModal';
 
 export default function Home() {
+  const [records, setRecords] = useState<Record[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    // initialize data
+    const stored = getRecords();
+    if (stored.length === 0) {
+      const dummy = generateDummyData();
+      saveRecords(dummy);
+      setRecords(dummy);
+
+      // Save dummy stores to storage for smart location demo
+      const uniqueStores = Array.from(new Set(dummy.map(r => r.storeName)));
+      uniqueStores.forEach(name => {
+        const r = dummy.find(d => d.storeName === name);
+        if (r && r.location) {
+          saveStore({
+            name: r.storeName,
+            lat: r.location.lat,
+            lng: r.location.lng,
+            lastVisited: r.date
+          });
+        }
+      });
+    } else {
+      setRecords(stored);
+    }
+    setIsInitialized(true);
+  }, []);
+
+  const handleAddRecord = (newRecordData: Omit<Record, 'id' | 'balance'>) => {
+    const newRecord: Record = {
+      ...newRecordData,
+      id: crypto.randomUUID(),
+      balance: newRecordData.recovery - newRecordData.investment
+    };
+
+    const updatedRecords = [...records, newRecord];
+    setRecords(updatedRecords);
+    saveRecords(updatedRecords);
+
+    // Save location for future suggestions
+    if (newRecord.location) {
+      saveStore({
+        name: newRecord.storeName,
+        lat: newRecord.location.lat,
+        lng: newRecord.location.lng,
+        lastVisited: newRecord.date
+      });
+    }
+  };
+
+  if (!isInitialized) return null; // or loading spinner
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-[#0a0a0a] pb-24">
+      <Header />
+
+      <div className="pt-20 px-4 sm:px-6 max-w-md mx-auto">
+        <SummaryCards records={records} />
+
+        <InsightTip records={records} />
+
+        <h2 className="text-white font-bold mb-4 text-lg">Calendar</h2>
+        <MonthCalendar records={records} />
+
+        {/* Recent History List (Mini) - Optional if time permits, for now Calendar is main */}
+        <div className="mt-8">
+          <h2 className="text-white font-bold mb-4 text-lg">Recent History</h2>
+          <div className="space-y-3">
+            {records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5).map(record => (
+              <div key={record.id} className="bg-neutral-900/50 border border-neutral-800 p-3 rounded-lg flex justify-between items-center">
+                <div>
+                  <div className="text-xs text-neutral-500">{record.date}</div>
+                  <div className="font-bold text-sm text-neutral-300">{record.storeName} - {record.machineName}</div>
+                </div>
+                <div className={`font-mono font-bold ${record.balance > 0 ? 'text-neon-green' : 'text-red-500'}`}>
+                  {record.balance > 0 ? '+' : ''}{record.balance.toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+
+      <EntryFab onClick={() => setIsModalOpen(true)} />
+
+      <EntryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleAddRecord}
+      />
+    </main>
   );
 }

@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
+@theme {
+  --color-neon-green: #4ade80;
+  --color-gold: #ffd700;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Utilities */
+.text-neon-green {
+  color: var(--color-neon-green);
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+.text-gold {
+  color: var(--color-gold);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.bg-glass {
+  /* Using @apply might need postcss plugin or just write standard css with tailwind classes if supported, 
+     but in v4 @apply works if configured. For safety I will use standard classes in JSX or direct styles here.
+     Let's try standard CSS with referencing theme values if possible, or just the utility classes.
+  */
+  background-color: rgba(23, 23, 23, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid #262626;
 }
