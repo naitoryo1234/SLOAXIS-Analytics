@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SLOAXIS Analytics
 
-## Getting Started
+パチスロ収支の記録・可視化・分析を支援する、モバイル向けWebアプリです。
 
-First, run the development server:
+## セッション開始（AI向け）
+
+新規セッション時は `docs/SESSION_ROUTER.md` を最初に読んで初期化してください。
+
+## 開発手順
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで `http://localhost:3000` を開いて確認します。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## よく参照するドキュメント
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `SPECIFICATION.md`
+- `IMPLEMENTATION_PLAN.md`
+- `docs/PROJECT_CONCEPT.md`
+- `docs/PROJECT_CONCEPT_ANALYTICS.md`
+- `docs/SESSION_ROUTER.md`
 
-## Learn More
+## 運用ルール（重要）
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 返答・計画書・ドキュメントは**すべて日本語**で記述する
+- 詳細ルールは `.agent/rules/project-settings.md` を参照
